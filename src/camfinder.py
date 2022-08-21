@@ -1,3 +1,5 @@
+'''camfinder.py
+'''
 from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
 import requests
@@ -9,8 +11,7 @@ import threading
 import logging
 
 
-logging.basicConfig(format="%(asctime)s %(levelname)s %(threadName)s %(name)s %(message)s",
-                    filename='camfinder.log',level=logging.DEBUG)
+logging.basicConfig(format="%(asctime)s %(levelname)s %(threadName)s %(name)s %(message)s", filename='camfinder.log',level=logging.DEBUG)
 
 
 NEXT = '»'
