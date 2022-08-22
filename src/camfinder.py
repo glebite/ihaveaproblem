@@ -45,6 +45,8 @@ results = list()
 
 
 def update_camera_url(replace, image, counter):
+    '''
+    '''
     source_url = image['src']
     logging.info(f'update_camera_url: {source_url=}')
     if replace:
@@ -57,6 +59,8 @@ def update_camera_url(replace, image, counter):
 
 
 def find_multi_cam(image):
+    '''
+    '''
     base = 0
     replace = None
     logging.info(f"image data: {image['src']=}")
@@ -69,6 +73,8 @@ def find_multi_cam(image):
     return base, replace
 
 def get_image(image_tuple):
+    '''
+    '''
     global results
 
     # logging.info(f'{image_tuple=}')
@@ -103,6 +109,8 @@ def get_image(image_tuple):
 
 
 def output_html(results):
+    '''
+    '''
     with open('index.html', 'w') as fp:
         fp.write('<html><body>')
         logging.debug(f'{type(results)}')
@@ -114,6 +122,8 @@ def output_html(results):
 
 
 def main(location):
+    '''
+    '''
     global results
     page = 1
     executor = ThreadPoolExecutor(50)
