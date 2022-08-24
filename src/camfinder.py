@@ -20,6 +20,8 @@ NEXT = '»'
 These are stream sources that "stream" instead of providing
 a single image.  Until there is fix for that to retrieve just
 a static image, the code will "continue"
+
+OpenCV might be employed here.
 '''
 PROBLEMATIC_STREAM_SOURCES = [
     'mjpg',
