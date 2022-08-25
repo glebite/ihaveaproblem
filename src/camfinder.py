@@ -4,10 +4,10 @@ from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
 import requests
 from requests.models import Response
-from urllib3.exceptions import ReadTimeoutError
+# from urllib3.exceptions import ReadTimeoutError
 import re
 import sys
-import threading
+# import threading
 import logging
 
 
@@ -61,7 +61,8 @@ def update_camera_url(replace, image, counter):
 
 
 def find_multi_cam(image):
-    '''
+    '''This function returns the first channel
+       number if the image['src'] contains chn= or channel=
     '''
     base = 0
     replace = None
@@ -75,7 +76,7 @@ def find_multi_cam(image):
     return base, replace
 
 def get_image(image_tuple):
-    '''
+    '''This is the beans and rice of the functions.
     '''
     global results
 
@@ -86,16 +87,13 @@ def get_image(image_tuple):
     logging.info(f'{base=} {replace=}')
     for i in range(base, 32):
         s = update_camera_url(replace, image, i)
-        # logging.info(f'{replace=}')
         # address = re.findall(r'(d{1,3}\.d{1,3}\.d{1,3}\.d{1,3})', replace)
-        # print(address.groups)
-        logging.info(f'Updated information {page=} {i=} {address=}')
+        # logging.info(f'Updated information {page=} {i=} {address=}')
         last_img = Response()
         last_img._content = None
         try:
             img = requests.get(s, headers=headers, timeout=30)
             if img.content != last_img.content:
-                # logging.info(f'Getting: {replace=} {i=} {s=}')                
                 last_img._content = img.content
                 file_name = f'{page}-{base}-{counter}-remote.jpg'
                 with open(file_name, 'wb') as f:
@@ -152,10 +150,8 @@ def main(location):
         nextp = re.search(f'page={page+1}', str(page_data.content))
         if nextp:
             page += 1
-            print('.', end='')
         else:
             break
-    print("")
     results = list(dict.fromkeys(results))
     output_html(results)
 
