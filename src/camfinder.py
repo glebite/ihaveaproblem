@@ -47,7 +47,7 @@ results = list()
 
 
 def update_camera_url(replace, image, counter):
-    '''
+    '''update_camera_url
     '''
     source_url = image['src']
     logging.info(f'update_camera_url: {source_url=}')
@@ -109,7 +109,7 @@ def get_image(image_tuple):
 
 
 def output_html(results):
-    '''
+    '''output_html - dump the contents of "results"
     '''
     with open('index.html', 'w') as fp:
         fp.write('<html><body>')
