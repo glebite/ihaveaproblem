@@ -4,10 +4,8 @@ from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
 import requests
 from requests.models import Response
-# from urllib3.exceptions import ReadTimeoutError
 import re
 import sys
-# import threading
 import logging
 
 
@@ -63,6 +61,9 @@ def update_camera_url(replace, image, counter):
 def find_multi_cam(image):
     '''This function returns the first channel
        number if the image['src'] contains chn= or channel=
+
+       If the channel= appears, then the base counter is 1
+       otherwise it's 0 if chn=
     '''
     base = 0
     replace = None
@@ -85,7 +86,7 @@ def get_image(image_tuple):
     base, replace = find_multi_cam(image)
     
     logging.info(f'{base=} {replace=}')
-    for i in range(base, 32):
+    for i in range(base, base):
         s = update_camera_url(replace, image, i)
         # address = re.findall(r'(d{1,3}\.d{1,3}\.d{1,3}\.d{1,3})', replace)
         # logging.info(f'Updated information {page=} {i=} {address=}')
@@ -124,6 +125,7 @@ def output_html(results):
 def main(location):
     '''
     '''
+    logging.info(f'Starting acquisition of images: {location=}')
     global results
     page = 1
     executor = ThreadPoolExecutor(50)
