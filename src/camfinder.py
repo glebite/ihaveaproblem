@@ -86,7 +86,7 @@ def get_image(image_tuple):
     base, replace = find_multi_cam(image)
     
     logging.info(f'{base=} {replace=}')
-    for i in range(base, base):
+    for i in range(base, base+1):
         s = update_camera_url(replace, image, i)
         # address = re.findall(r'(d{1,3}\.d{1,3}\.d{1,3}\.d{1,3})', replace)
         # logging.info(f'Updated information {page=} {i=} {address=}')
