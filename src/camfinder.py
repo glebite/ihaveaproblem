@@ -7,6 +7,7 @@ from requests.models import Response
 import re
 import sys
 import logging
+import argparse
 
 
 logging.basicConfig(format="%(asctime)s %(levelname)s %(threadName)s %(name)s %(message)s", filename='camfinder.log',level=logging.DEBUG)
@@ -158,4 +159,7 @@ def main(location):
     output_html(results)
 
 
-main(sys.argv[1])
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='One of many bad ideas.')
+    parser.add_argument('-c', '--country', help='Country selection.')
+    
