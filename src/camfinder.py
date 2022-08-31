@@ -162,4 +162,6 @@ def main(location):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='One of many bad ideas.')
     parser.add_argument('-c', '--country', help='Country selection.')
+    parser.add_argument('-C', '--city', help='City selection.')
+    parser.add_argument('-i', '--interest', help='Interest selection.')    
     
