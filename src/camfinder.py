@@ -166,6 +166,7 @@ if __name__ == "__main__":
     group.add_argument('-C', '--city', help='City selection.')
     group.add_argument('-i', '--interest', help='Interest selection.')
     args = parser.parse_args()
-    print(args)
-    
-    
+
+    print(args.country)
+    print(vars(args))
+    x = vars(args)
