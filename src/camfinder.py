@@ -7,7 +7,7 @@ from requests.models import Response
 import re
 import sys
 import logging
-import argparse
+import getopt
 
 
 logging.basicConfig(format="%(asctime)s %(levelname)s %(threadName)s %(name)s %(message)s", filename='camfinder.log',level=logging.DEBUG)
@@ -160,13 +160,12 @@ def main(location):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='One of many bad ideas.')
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('-c', '--country', help='Country selection.')
-    group.add_argument('-C', '--city', help='City selection.')
-    group.add_argument('-i', '--interest', help='Interest selection.')
-    args = parser.parse_args()
-
-    print(args.country)
-    print(vars(args))
-    x = vars(args)
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hc:", ["help", "output="])
+    except getopt.GetoptError as err:
+        print(err)
+        sys.exit(2)
+    for o, a in opts:
+        if o in ("-c", "--country"):
+            main(a)
+            break
