@@ -123,7 +123,7 @@ def output_html(results):
         fp.write('</body></html')
 
 
-def main(location):
+def main(country=None, city=None, interest=None):
     '''
     '''
     logging.info(f'Starting acquisition of images: {location=}')
@@ -161,11 +161,17 @@ def main(location):
 
 if __name__ == "__main__":
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hc:", ["help", "output="])
+        opts, args = getopt.getopt(sys.argv[1:], "hcCi:", ["help", "output="])
     except getopt.GetoptError as err:
         print(err)
         sys.exit(2)
     for o, a in opts:
         if o in ("-c", "--country"):
-            main(a)
+            main(country=a)
+            break
+        elif o in ("-C", "--city"):
+            main(city=a)
+            break
+        elif o in ("-i", "--interest"):
+            main(interest=a)
             break
