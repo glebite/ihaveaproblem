@@ -127,7 +127,8 @@ def output_html(results):
 def main(country=None, city=None, interest=None):
     '''
     '''
-    logging.info(f'Starting acquisition of images: {location=}')
+    logging.info(f'Starting acquisition of images: {country=}'
+                 f' {city=} {interest=}')
     global results
     page = 1
     executor = ThreadPoolExecutor(50)
