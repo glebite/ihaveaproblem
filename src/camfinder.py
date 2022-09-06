@@ -134,9 +134,9 @@ def main(country=None, city=None, interest=None):
     executor = ThreadPoolExecutor(50)
     while True:
         if page > 1:
-            URL = f'http://www.insecam.org/en/bycountry/{location}/?page={page}'
+            URL = f'http://www.insecam.org/en/bycountry/{country}/?page={page}'
         else:
-            URL = f'http://www.insecam.org/en/bycountry/{location}'
+            URL = f'http://www.insecam.org/en/bycountry/{country}'
         page_data= requests.get(URL, headers=headers)
 
         soup = BeautifulSoup(page_data.content, 'html.parser')
