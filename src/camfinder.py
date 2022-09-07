@@ -126,6 +126,8 @@ def output_html(results):
 
 def main(country=None, city=None, interest=None):
     '''
+    mapcity
+    bytag
     '''
     logging.info(f'Starting acquisition of images: {country=}'
                  f' {city=} {interest=}')
