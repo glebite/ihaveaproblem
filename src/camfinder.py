@@ -126,19 +126,29 @@ def output_html(results):
 
 def main(country=None, city=None, interest=None):
     '''
+    bycountry
     mapcity
     bytag
     '''
+    if country:
+        tag = bycountry
+    elif city:
+        tag = mapcity
+    elif interest:
+        tag = interest
+    else:
+        pass
     logging.info(f'Starting acquisition of images: {country=}'
                  f' {city=} {interest=}')
     global results
     page = 1
     executor = ThreadPoolExecutor(50)
+    
     while True:
         if page > 1:
-            URL = f'http://www.insecam.org/en/bycountry/{country}/?page={page}'
+            URL = f'http://www.insecam.org/en/{tag}/{country}/?page={page}'
         else:
-            URL = f'http://www.insecam.org/en/bycountry/{country}'
+            URL = f'http://www.insecam.org/en/{tag}/{country}'
         page_data= requests.get(URL, headers=headers)
 
         soup = BeautifulSoup(page_data.content, 'html.parser')
