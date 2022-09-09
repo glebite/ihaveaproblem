@@ -126,9 +126,11 @@ def output_html(results):
 
 def main(country=None, city=None, interest=None):
     '''
-    bycountry
-    mapcity
-    bytag
+    Allows for searching one one of the things we want to look for
+
+    bycountry example IR, CA, FR, TW
+    mapcity Isfahan, Toronto
+    bytag Restaurant, Bar, Gym, Office
     '''
     if country:
         tag = bycountry
