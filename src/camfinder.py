@@ -174,6 +174,8 @@ def main(country=None, city=None, interest=None):
     results = list(dict.fromkeys(results))
     output_html(results)
 
+def help():
+    pass
 
 if __name__ == "__main__":
     try:
