@@ -186,12 +186,13 @@ def main(country=None, city=None, interest=None):
     output_html(results)
 
 def help():
-    pass
+    print("python camfinder.py [-c country | -C city | -i interest]")
 
 if __name__ == "__main__":
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hc:C:i:", ["help", "output="])
     except getopt.GetoptError as err:
+        help()
         logging.error(err)
         sys.exit(2)
     for o, a in opts:
@@ -204,3 +205,5 @@ if __name__ == "__main__":
         elif o in ("-i"):
             main(interest=a)
             break
+    else:
+        help()
