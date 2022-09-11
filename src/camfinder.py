@@ -2,6 +2,7 @@
 '''
 from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import wait
 import requests
 from requests.models import Response
 import re
@@ -95,12 +96,13 @@ def get_image(image_tuple):
         last_img = Response()
         last_img._content = None
         try:
-            img = requests.get(s, headers=headers, timeout=30)
+            img = requests.get(s, headers=headers, timeout=10)
             if img.content != last_img.content:
                 last_img._content = img.content
                 file_name = f'{page}-{base}-{counter}-remote.jpg'
                 with open(file_name, 'wb') as f:
                     f.write(img.content)
+                logging.info(f'Appending: {file_name=}')
                 results.append((file_name, s, image))
             else:
                 break
@@ -114,6 +116,7 @@ def get_image(image_tuple):
 def output_html(results):
     '''output_html - dump the contents of "results"
     '''
+    logging.info(f'Coming into output_html with {results=}')
     with open('index.html', 'w') as fp:
         fp.write('<html><body>')
         logging.debug(f'{type(results)}')
@@ -123,6 +126,7 @@ def output_html(results):
                      ' width="800" height="600" ></img>')
             fp.write(f'<br/>{s}<br/>{image["src"]}<br/> {image["title"]}')
         fp.write('</body></html')
+    logging.info('Finished writing output')
 
 
 def main(country=None, city=None, interest=None):
@@ -149,7 +153,8 @@ def main(country=None, city=None, interest=None):
     global results
     page = 1
     executor = ThreadPoolExecutor(50)
-    
+
+    futures = list()
     while True:
         if page > 1:
             URL = f'http://www.insecam.org/en/{tag}/{criteria}/?page={page}'
@@ -169,9 +174,9 @@ def main(country=None, city=None, interest=None):
             if re.compile('|'.join(PROBLEMATIC_STREAM_SOURCES),
                           re.IGNORECASE).search(image['src']):
                 continue
-
-            t = executor.submit(get_image, (image, page, counter))
-                                
+            futures.append(executor.submit(get_image, (image, page, counter)))
+            
+        wait(futures)                  
         nextp = re.search(f'page={page+1}', str(page_data.content))
         if nextp:
             page += 1
@@ -187,7 +192,7 @@ if __name__ == "__main__":
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hc:C:i:", ["help", "output="])
     except getopt.GetoptError as err:
-        print(err)
+        logging.error(err)
         sys.exit(2)
     for o, a in opts:
         if o in ("-c", "--country"):
