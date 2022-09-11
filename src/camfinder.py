@@ -118,6 +118,7 @@ def output_html(results):
         fp.write('<html><body>')
         logging.debug(f'{type(results)}')
         for (image_filename, s, image) in results:
+            logging.info(f'Updating html page with {image_filename=}')
             fp.write(f'<br/><img src="./{image_filename}"'
                      ' width="800" height="600" ></img>')
             fp.write(f'<br/>{s}<br/>{image["src"]}<br/> {image["title"]}')
@@ -133,11 +134,14 @@ def main(country=None, city=None, interest=None):
     bytag Restaurant, Bar, Gym, Office
     '''
     if country:
-        tag = bycountry
+        tag = 'bycountry'
+        criteria = country
     elif city:
-        tag = mapcity
+        tag = 'bycity'
+        criteria = city
     elif interest:
-        tag = interest
+        tag = 'bytag'
+        criteria = interest
     else:
         pass
     logging.info(f'Starting acquisition of images: {country=}'
@@ -148,9 +152,10 @@ def main(country=None, city=None, interest=None):
     
     while True:
         if page > 1:
-            URL = f'http://www.insecam.org/en/{tag}/{country}/?page={page}'
+            URL = f'http://www.insecam.org/en/{tag}/{criteria}/?page={page}'
         else:
-            URL = f'http://www.insecam.org/en/{tag}/{country}'
+            URL = f'http://www.insecam.org/en/{tag}/{criteria}'
+        logging.info(f'{URL=}')
         page_data= requests.get(URL, headers=headers)
 
         soup = BeautifulSoup(page_data.content, 'html.parser')
@@ -159,6 +164,7 @@ def main(country=None, city=None, interest=None):
                                {"class":
                                 "thumbnail-item__img img-responsive"})
 
+        logging.info(f'Checking images: {images=}')
         for counter, image in enumerate(images):
             if re.compile('|'.join(PROBLEMATIC_STREAM_SOURCES),
                           re.IGNORECASE).search(image['src']):
@@ -179,7 +185,7 @@ def help():
 
 if __name__ == "__main__":
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hcCi:", ["help", "output="])
+        opts, args = getopt.getopt(sys.argv[1:], "hc:C:i:", ["help", "output="])
     except getopt.GetoptError as err:
         print(err)
         sys.exit(2)
