@@ -195,12 +195,12 @@ if __name__ == "__main__":
         logging.error(err)
         sys.exit(2)
     for o, a in opts:
-        if o in ("-c", "--country"):
+        if o in ("-c"):
             main(country=a)
             break
-        elif o in ("-C", "--city"):
+        elif o in ("-C"):
             main(city=a)
             break
-        elif o in ("-i", "--interest"):
+        elif o in ("-i"):
             main(interest=a)
             break
