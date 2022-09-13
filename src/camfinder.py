@@ -152,7 +152,7 @@ def main(country=None, city=None, interest=None):
                  f' {city=} {interest=}')
     global results
     page = 1
-    executor = ThreadPoolExecutor(50)
+    executor = ThreadPoolExecutor(5)
 
     futures = list()
     while True:
