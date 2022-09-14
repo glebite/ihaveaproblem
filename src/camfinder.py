@@ -1,4 +1,6 @@
 '''camfinder.py
+
+Magic tool.
 '''
 from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
