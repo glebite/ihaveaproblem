@@ -18,6 +18,7 @@ logging.basicConfig(format="%(asctime)s %(levelname)s %(threadName)s %(name)s %(
 
 NEXT = '»'
 
+
 '''
 These are stream sources that "stream" instead of providing
 a single image.  Until there is fix for that to retrieve just
@@ -187,9 +188,11 @@ def main(country=None, city=None, interest=None):
     results = list(dict.fromkeys(results))
     output_html(results)
 
+
 def help():
     print("python camfinder.py [-c country | -C city | -i interest]")
 
+    
 if __name__ == "__main__":
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hc:C:i:", ["help", "output="])
