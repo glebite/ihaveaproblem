@@ -1,4 +1,5 @@
-'''camfinder.py
+'''
+camfinder.py
 
 Magic tool.
 '''
@@ -51,7 +52,8 @@ results = list()
 
 
 def update_camera_url(replace, image, counter):
-    '''update_camera_url
+    '''
+    update_camera_url
     '''
     source_url = image['src']
     logging.info(f'update_camera_url: {source_url=}')
@@ -91,11 +93,11 @@ def get_image(image_tuple):
     image, page, counter = image_tuple
     base, replace = find_multi_cam(image)
     
-    logging.info(f'{base=} {replace=}')
-    for i in range(base, base+1):
+    logging.info(f'Setting up the base and replacement: {base=} {replace=}')
+    for i in range(base, base+4):
         s = update_camera_url(replace, image, i)
-        # address = re.findall(r'(d{1,3}\.d{1,3}\.d{1,3}\.d{1,3})', replace)
-        # logging.info(f'Updated information {page=} {i=} {address=}')
+        address = re.findall(r'(d{1,3}\.d{1,3}\.d{1,3}\.d{1,3})', replace)
+        logging.info(f'Updated information {page=} {i=} {address=}')
         last_img = Response()
         last_img._content = None
         try:
