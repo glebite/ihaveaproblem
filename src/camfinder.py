@@ -94,14 +94,16 @@ def get_image(image_tuple):
     base, replace = find_multi_cam(image)
     
     logging.info(f'Setting up the base and replacement: {base=} {replace=}')
+    
     for i in range(base, base+4):
         s = update_camera_url(replace, image, i)
-        address = re.findall(r'(d{1,3}\.d{1,3}\.d{1,3}\.d{1,3})', replace)
+        address = re.match(r'(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b)', replace)
         logging.info(f'Updated information {page=} {i=} {address=}')
         last_img = Response()
         last_img._content = None
         try:
             img = requests.get(s, headers=headers, timeout=10)
+            print(address, s)
             if img.content != last_img.content:
                 last_img._content = img.content
                 file_name = f'{page}-{base}-{counter}-remote.jpg'
