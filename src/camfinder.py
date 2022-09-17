@@ -73,15 +73,18 @@ def find_multi_cam(image):
        If the channel= appears, then the base counter is 1
        otherwise it's 0 if chn=
     '''
+    logging.debug(f'In find_multi_cam {image}')
     base = 0
     replace = None
-    logging.info(f"image data: {image['src']=}")
+    logging.debug(f"image data: {image['src']=}")
     if 'channel=' in image['src']:
+        logging.debug(f"Checking for 'channel='")
         base = 1
         replace = "channel="
     if 'chn=' in image['src']:
+        logging.debug(f"Checking for 'chn='")
         replace = "chn="
-        
+    logging.debug(f'Coming out of find_multi_cam {base=} {replace=}')
     return base, replace
 
 def get_image(image_tuple):
@@ -97,16 +100,20 @@ def get_image(image_tuple):
     
     for i in range(base, base+4):
         s = update_camera_url(replace, image, i)
-        address = re.match(r'(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b)', replace)
+        logging.info(f'Replacing {replace=} {image["src"]=}')
+        address = re.search(r'(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b)', image['src'])
+        address = address.group(0)
+        print(address)
         logging.info(f'Updated information {page=} {i=} {address=}')
         last_img = Response()
         last_img._content = None
         try:
             img = requests.get(s, headers=headers, timeout=10)
-            print(address, s)
+            logging.debug(f'Status: {img.status_code=}')
+            logging.debug(f'Sorting out things: {address=}, {s=}')
             if img.content != last_img.content:
                 last_img._content = img.content
-                file_name = f'{page}-{base}-{counter}-remote.jpg'
+                file_name = f'{page}-{base}-{counter}-{address}.jpg'
                 with open(file_name, 'wb') as f:
                     f.write(img.content)
                 logging.info(f'Appending: {file_name=}')
