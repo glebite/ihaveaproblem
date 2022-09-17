@@ -14,7 +14,7 @@ import logging
 import getopt
 
 
-logging.basicConfig(format="%(asctime)s %(levelname)s %(threadName)s %(name)s %(message)s", filename='camfinder.log',level=logging.DEBUG)
+logging.basicConfig(format="%(asctime)s %(levelname)8s %(funcName)20s:%(lineno)3d %(message)s", filename='camfinder.log',level=logging.DEBUG)
 
 
 NEXT = '»'
@@ -36,7 +36,8 @@ PROBLEMATIC_STREAM_SOURCES = [
     'GetData',
     'cam_1.cgi',
     'faststream',
-    'asp/video.cgi'
+    'asp/video.cgi',
+    'speed='
     ]
 
 
@@ -56,13 +57,13 @@ def update_camera_url(replace, image, counter):
     update_camera_url
     '''
     source_url = image['src']
-    logging.info(f'update_camera_url: {source_url=}')
+    logging.info(f'{source_url=}')
     if replace:
         source_url = re.sub(f'{replace}(\d+)',
                             f'{replace}{counter}', source_url)
     else:
         source_url = image['src']
-    logging.info(f'update: {source_url=}')
+    logging.info(f'leaving {source_url=}')
     return source_url
 
 
@@ -73,7 +74,7 @@ def find_multi_cam(image):
        If the channel= appears, then the base counter is 1
        otherwise it's 0 if chn=
     '''
-    logging.debug(f'In find_multi_cam {image}')
+    logging.debug(f'{image}')
     base = 0
     replace = None
     logging.debug(f"image data: {image['src']=}")
@@ -84,7 +85,7 @@ def find_multi_cam(image):
     if 'chn=' in image['src']:
         logging.debug(f"Checking for 'chn='")
         replace = "chn="
-    logging.debug(f'Coming out of find_multi_cam {base=} {replace=}')
+    logging.debug(f'leaving {base=} {replace=}')
     return base, replace
 
 def get_image(image_tuple):
@@ -100,10 +101,7 @@ def get_image(image_tuple):
     
     for i in range(base, base+4):
         s = update_camera_url(replace, image, i)
-        logging.info(f'Replacing {replace=} {image["src"]=}')
-        address = re.search(r'(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b)', image['src'])
-        address = address.group(0)
-        print(address)
+        address = re.search(r'(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b)', image['src']).group(0)
         logging.info(f'Updated information {page=} {i=} {address=}')
         last_img = Response()
         last_img._content = None
@@ -188,11 +186,13 @@ def main(country=None, city=None, interest=None):
             if re.compile('|'.join(PROBLEMATIC_STREAM_SOURCES),
                           re.IGNORECASE).search(image['src']):
                 continue
-            futures.append(executor.submit(get_image, (image, page, counter)))
+            get_image((image, page, counter))
+            # futures.append(executor.submit(get_image, (image, page, counter)))
             
-        wait(futures)                  
+        # wait(futures)                  
         nextp = re.search(f'page={page+1}', str(page_data.content))
         if nextp:
+            logging.debug(f'Next page: {page=}')
             page += 1
         else:
             break
