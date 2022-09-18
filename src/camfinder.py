@@ -139,7 +139,7 @@ def output_html(results):
             fp.write(f'<br/><img src="./{image_filename}"'
                      ' width="800" height="600" ></img>')
             # fp.write(f'<br/>{s}<br/>{image["src"]}<br/> {image["title"]}')
-            fp.write(f'<br/>{s}<br/> {image["title"]}')            
+            fp.write(f'<br/><a href="{s}" target="_blank" rel="nopener no referrer">{s}</a><br/> {image["title"]}')            
         fp.write('</body></html')
     logging.info('Finished writing output')
 
