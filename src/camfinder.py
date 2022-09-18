@@ -98,23 +98,25 @@ def get_image(image_tuple):
     base, replace = find_multi_cam(image)
     
     logging.info(f'Setting up the base and replacement: {base=} {replace=}')
-    
+
+    last_img = Response()
+    last_img._content = None    
     for i in range(base, base+4):
         s = update_camera_url(replace, image, i)
+
         address = re.search(r'(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b)', image['src']).group(0)
         logging.info(f'Updated information {page=} {i=} {address=}')
-        last_img = Response()
-        last_img._content = None
+
         try:
-            img = requests.get(s, headers=headers, timeout=10)
+            img = requests.get(s, headers=headers, timeout=5)
             logging.debug(f'Status: {img.status_code=}')
             logging.debug(f'Sorting out things: {address=}, {s=}')
             if img.content != last_img.content:
                 last_img._content = img.content
-                file_name = f'{page}-{base}-{counter}-{address}.jpg'
+                file_name = f'{page}-{base}-{i}-{address}.jpg'
                 with open(file_name, 'wb') as f:
                     f.write(img.content)
-                logging.info(f'Appending: {file_name=}')
+                logging.info(f'About to append: {file_name=} {s=} {image=}')
                 results.append((file_name, s, image))
             else:
                 break
@@ -136,7 +138,8 @@ def output_html(results):
             logging.info(f'Updating html page with {image_filename=}')
             fp.write(f'<br/><img src="./{image_filename}"'
                      ' width="800" height="600" ></img>')
-            fp.write(f'<br/>{s}<br/>{image["src"]}<br/> {image["title"]}')
+            # fp.write(f'<br/>{s}<br/>{image["src"]}<br/> {image["title"]}')
+            fp.write(f'<br/>{s}<br/> {image["title"]}')            
         fp.write('</body></html')
     logging.info('Finished writing output')
 
@@ -164,7 +167,7 @@ def main(country=None, city=None, interest=None):
                  f' {city=} {interest=}')
     global results
     page = 1
-    executor = ThreadPoolExecutor(5)
+    executor = ThreadPoolExecutor(10)
 
     futures = list()
     while True:
@@ -186,10 +189,10 @@ def main(country=None, city=None, interest=None):
             if re.compile('|'.join(PROBLEMATIC_STREAM_SOURCES),
                           re.IGNORECASE).search(image['src']):
                 continue
-            get_image((image, page, counter))
-            # futures.append(executor.submit(get_image, (image, page, counter)))
+            # get_image((image, page, counter))
+            futures.append(executor.submit(get_image, (image, page, counter)))
             
-        # wait(futures)                  
+        wait(futures)                  
         nextp = re.search(f'page={page+1}', str(page_data.content))
         if nextp:
             logging.debug(f'Next page: {page=}')
@@ -197,6 +200,7 @@ def main(country=None, city=None, interest=None):
         else:
             break
     results = list(dict.fromkeys(results))
+    results = sorted(results, key=lambda tup: tup[1])
     output_html(results)
 
 
