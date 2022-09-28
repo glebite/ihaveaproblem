@@ -101,7 +101,7 @@ def get_image(image_tuple):
 
     last_img = Response()
     last_img._content = None    
-    for i in range(base, base+4):
+    for i in range(base, base+8):
         s = update_camera_url(replace, image, i)
 
         address = re.search(r'(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b)', image['src']).group(0)
@@ -138,7 +138,6 @@ def output_html(results):
             logging.info(f'Updating html page with {image_filename=}')
             fp.write(f'<br/><img src="./{image_filename}"'
                      ' width="800" height="600" ></img>')
-            # fp.write(f'<br/>{s}<br/>{image["src"]}<br/> {image["title"]}')
             fp.write(f'<br/><a href="{s}" target="_blank" rel="nopener no referrer">{s}</a><br/> {image["title"]}')            
         fp.write('</body></html')
     logging.info('Finished writing output')
