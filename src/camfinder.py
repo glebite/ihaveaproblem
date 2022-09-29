@@ -88,6 +88,7 @@ def find_multi_cam(image):
     logging.debug(f'leaving {base=} {replace=}')
     return base, replace
 
+
 def get_image(image_tuple):
     '''This is the beans and rice of the functions.
     '''
