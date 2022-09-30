@@ -55,6 +55,14 @@ results = list()
 def update_camera_url(replace, image, counter):
     '''
     update_camera_url
+
+    Parameters:
+    replace 
+    image
+    counter
+    
+    Returns:
+    source_url
     '''
     source_url = image['src']
     logging.info(f'{source_url=}')
