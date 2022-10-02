@@ -18,7 +18,7 @@ logging.basicConfig(format="%(asctime)s %(levelname)8s %(funcName)20s:%(lineno)3
 
 
 NEXT = '»'
-
+BASE_URL = 'http://www.insecam.org/en'
 
 '''
 These are stream sources that "stream" instead of providing
@@ -110,14 +110,14 @@ def get_image(image_tuple):
 
     last_img = Response()
     last_img._content = None    
-    for i in range(base, base+8):
+    for i in range(base, base+32):
         s = update_camera_url(replace, image, i)
 
         address = re.search(r'(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b)', image['src']).group(0)
         logging.info(f'Updated information {page=} {i=} {address=}')
 
         try:
-            img = requests.get(s, headers=headers, timeout=5)
+            img = requests.get(s, headers=headers, timeout=20)
             logging.debug(f'Status: {img.status_code=}')
             logging.debug(f'Sorting out things: {address=}, {s=}')
             if img.content != last_img.content:
@@ -180,9 +180,9 @@ def main(country=None, city=None, interest=None):
     futures = list()
     while True:
         if page > 1:
-            URL = f'http://www.insecam.org/en/{tag}/{criteria}/?page={page}'
+            URL = f'{BASE_URL}/{tag}/{criteria}/?page={page}'
         else:
-            URL = f'http://www.insecam.org/en/{tag}/{criteria}'
+            URL = f'{BASE_URL}/{tag}/{criteria}'
         logging.info(f'{URL=}')
         page_data= requests.get(URL, headers=headers)
 
@@ -212,13 +212,45 @@ def main(country=None, city=None, interest=None):
     output_html(results)
 
 
+def list_countries():
+    response = requests.get(f'{BASE_URL}/jsoncountries', headers=headers)
+    data = response.json()
+    for country in data['countries']:
+        name, count = data['countries'][country].items()
+        print(f'{name[1]:.<40s} {count[1]}')
+
+        
+def list_cities():
+    """ Sigh
+    """
+    response = requests.get(f'{BASE_URL}/mapcity', headers=headers)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    links = soup.find_all("a", href=lambda href: href and "bycity" in href)
+    for link in links:
+        results = link.text.split('/')
+        if len(results) == 3:
+            city, _, count = results
+        else:
+            city, count = results
+        count = count.lstrip()[1:-1]
+        print(f'{city:,<50s} {count}')
+
+
+def list_interests():
+    response = requests.get(f'{BASE_URL}/jsontags', headers=headers)
+    data = response.json()
+    for tag in data['tags']:
+        name = data['tags'][tag]
+        print(name)
+
+    
 def help():
-    print("python camfinder.py [-c country | -C city | -i interest]")
+    print("python camfinder.py [-l | -c country | -C city | -i interest]")
 
     
 if __name__ == "__main__":
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hc:C:i:", ["help", "output="])
+        opts, args = getopt.getopt(sys.argv[1:], "hlILc:C:i:", ["help", "output="])
     except getopt.GetoptError as err:
         help()
         logging.error(err)
@@ -232,6 +264,15 @@ if __name__ == "__main__":
             break
         elif o in ("-i"):
             main(interest=a)
+            break
+        elif o in ("-l"):
+            list_countries()
+            break
+        elif o in ("-L"):
+            list_cities()
+            break
+        elif o in ("-I"):
+            list_interests()
             break
     else:
         help()
