@@ -213,15 +213,24 @@ def main(country=None, city=None, interest=None):
 
 
 def list_countries():
+    """ REST API call and retrieves a json list of 
+        countries, names, and count of cameras there.
+    """
     response = requests.get(f'{BASE_URL}/jsoncountries', headers=headers)
     data = response.json()
     for country in data['countries']:
         name, count = data['countries'][country].items()
-        print(f'{name[1]:.<40s} {count[1]}')
+        print(f'{country:<2s} {name[1]:.<40s} {count[1]}')
 
         
 def list_cities():
-    """ Sigh
+    """ Sigh - why they didn't use a REST API for this, I have
+        no idea at all.  The page must be retrieved and then
+        parsed via beautiful soup.
+     
+        One city has two forward slashes and that is handled by
+        counting the number of slashes and deviating for things
+        here.
     """
     response = requests.get(f'{BASE_URL}/mapcity', headers=headers)
     soup = BeautifulSoup(response.content, 'html.parser')
@@ -237,6 +246,9 @@ def list_cities():
 
 
 def list_interests():
+    """ REST API call and retrieves a json list of 
+        interests (tags).
+    """
     response = requests.get(f'{BASE_URL}/jsontags', headers=headers)
     data = response.json()
     for tag in data['tags']:
@@ -245,7 +257,13 @@ def list_interests():
 
     
 def help():
-    print("python camfinder.py [-l | -c country | -C city | -i interest]")
+    print("python camfinder.py [-I | -L | -l | -c country | -C city | -i interest]")
+    print("-c <country> - finds all cameras in the country (uses 2 character country code (except for -)")
+    print("-C <city> - all cameras by city name.  Encapsulate names that have spaces in them with quotes")
+    print("-i <interest> - lists all interests (tags) such as Restaurant.")
+    print("-I - lists interests or tags such as Restaurant")
+    print("-L - list of cities")
+    print("-l - list of country codes, country names, and number of cameras there.")
 
     
 if __name__ == "__main__":
