@@ -196,6 +196,9 @@ def main(country=None, city=None, interest=None):
         for counter, image in enumerate(images):
             if re.compile('|'.join(PROBLEMATIC_STREAM_SOURCES),
                           re.IGNORECASE).search(image['src']):
+                # add the image src to list of unsupported formats
+                print(image['src'])
+                print(image['title'])
                 continue
             # get_image((image, page, counter))
             futures.append(executor.submit(get_image, (image, page, counter)))
