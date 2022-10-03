@@ -42,7 +42,42 @@ Search by city:
 > $ python3 camfinder.py -c Isfahan  
 
 Search by interest:  
-> $ python3 -camfinder.py -a Industrial  
+> $ python3 camfinder.py -i Industrial  
+
+List Searches:  
+(find all supported Interests/tags)  
+> $ python3 camfinder.py -I  
+> Advertisement  
+> Airliner  
+> Animal  
+> Architecture  
+> Bar  
+> Barbershop  
+> ...  
+> Weather  
+
+(find all supported Cities):  
+> $ python3 camfinder.py -L  
+>  A Coruna ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,  4  
+>  Aabenraa ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,  1  
+>  Aalborg ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,  2  
+>  Aarau ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,  1  
+>  Abana ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,  1  
+>  Abbotsford ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,  1  
+> ...  
+>  Zwickau ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,  1   
+>  Zwolle ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,  10  
+
+(find all supported countries):  
+> $ python3 camfinder.py -l  
+> US United States........................... 2501  
+> JP Japan................................... 1153  
+> TW Taiwan, Province Of .................... 787  
+> KR Korea, Republic Of...................... 593  
+> ...  
+> NA Namibia................................. 1  
+> UZ Uzbekistan.............................. 1  
+
 
 ## Storage:  
 Currently, the executing folder contains all of the downloaded images as 
