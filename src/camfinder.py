@@ -49,8 +49,9 @@ headers = {'User-Agent':
 
 
 global results
+global problems
 results = list()
-
+problems = list()
 
 def update_camera_url(replace, image, counter):
     '''
@@ -142,12 +143,20 @@ def output_html(results):
     logging.info(f'Coming into output_html with {results=}')
     with open('index.html', 'w') as fp:
         fp.write('<html><body>')
+        fp.write('<h1>Static image links</h1>')
+        fp.write('<br/>Clicked links will open in a new tab<br/>')
         logging.debug(f'{type(results)}')
         for (image_filename, s, image) in results:
-            logging.info(f'Updating html page with {image_filename=}')
+            logging.debug(f'Updating html page with {image_filename=}')
             fp.write(f'<br/><img src="./{image_filename}"'
                      ' width="800" height="600" ></img>')
-            fp.write(f'<br/><a href="{s}" target="_blank" rel="nopener no referrer">{s}</a><br/> {image["title"]}')            
+            fp.write(f'<br/><a href="{s}" target="_blank" rel="nopener no referrer">{s}</a><br/> {image["title"]}')
+        fp.write('<h1>Streamed image links</h1>')
+        fp.write('<br/>Clicked links will open in a new tab<br/>')        
+        for image in problems:
+            s = image['src']
+            t = image['title']
+            fp.write(f'<br/>Streaming: <a href="{s}" target="_blank" rel="nopener no referrer">{s}</a><br/> {t}')
         fp.write('</body></html')
     logging.info('Finished writing output')
 
@@ -174,6 +183,7 @@ def main(country=None, city=None, interest=None):
     logging.info(f'Starting acquisition of images: {country=}'
                  f' {city=} {interest=}')
     global results
+    global problems
     page = 1
     executor = ThreadPoolExecutor(10)
 
@@ -197,8 +207,7 @@ def main(country=None, city=None, interest=None):
             if re.compile('|'.join(PROBLEMATIC_STREAM_SOURCES),
                           re.IGNORECASE).search(image['src']):
                 # add the image src to list of unsupported formats
-                print(image['src'])
-                print(image['title'])
+                problems.append(image)
                 continue
             # get_image((image, page, counter))
             futures.append(executor.submit(get_image, (image, page, counter)))
