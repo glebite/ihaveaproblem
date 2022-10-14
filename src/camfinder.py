@@ -52,6 +52,7 @@ global results
 global problems
 results = list()
 problems = list()
+data_store = False
 
 def update_camera_url(replace, image, counter):
     '''
@@ -74,6 +75,11 @@ def update_camera_url(replace, image, counter):
         source_url = image['src']
     logging.info(f'leaving {source_url=}')
     return source_url
+
+
+def write_out_url(url):
+    with open('datastore.txt', 'a') as fp:
+        fp.write(url + '\n')
 
 
 def find_multi_cam(image):
@@ -108,6 +114,9 @@ def get_image(image_tuple):
     base, replace = find_multi_cam(image)
     
     logging.info(f'Setting up the base and replacement: {base=} {replace=}')
+
+    if data_store:
+        write_out_url(image['src'])
 
     last_img = Response()
     last_img._content = None    
@@ -276,17 +285,20 @@ def help():
     print("-I - lists interests or tags such as Restaurant")
     print("-L - list of cities")
     print("-l - list of country codes, country names, and number of cameras there.")
+    print("-d - dump URLs to a text file")
 
     
 if __name__ == "__main__":
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hlILc:C:i:", ["help", "output="])
+        opts, args = getopt.getopt(sys.argv[1:], "hdlILc:C:i:", ["help", "output="])
     except getopt.GetoptError as err:
         help()
         logging.error(err)
         sys.exit(2)
     for o, a in opts:
-        if o in ("-c"):
+        if o in ('-d'):
+            data_store = True
+        elif o in ("-c"):
             main(country=a)
             break
         elif o in ("-C"):
