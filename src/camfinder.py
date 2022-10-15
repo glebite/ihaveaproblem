@@ -12,6 +12,7 @@ import re
 import sys
 import logging
 import getopt
+import argparse
 
 
 logging.basicConfig(format="%(asctime)s %(levelname)8s %(funcName)20s:%(lineno)3d %(message)s", filename='camfinder.log',level=logging.DEBUG)
@@ -287,7 +288,20 @@ def help():
     print("-l - list of country codes, country names, and number of cameras there.")
     print("-d - dump URLs to a text file")
 
-    
+
+# def main():
+#     """
+#     """
+#     my_parser = argparse.ArgumentParser()
+#     my_parser.add_argument('-c', action='store')
+#     my_parser.add_argument('-C', action='store')
+#     my_parser.add_argument('-i', action='store')
+#     my_parser.add_argument('-l', action='store')
+#     my_parser.add_argument('-L', action='store')
+#     my_parser.add_argument('-I', action='store')
+#     my_parser.add_argument('-d', action='store')
+
+
 if __name__ == "__main__":
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hdlILc:C:i:", ["help", "output="])
