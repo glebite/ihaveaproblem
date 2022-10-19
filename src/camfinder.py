@@ -178,6 +178,11 @@ def main(country=None, city=None, interest=None):
     bycountry example IR, CA, FR, TW
     mapcity Isfahan, Toronto
     bytag Restaurant, Bar, Gym, Office
+
+    Parameters:
+    country  (str): country code (defaults to None)
+    city     (str): city name (defaults to None)
+    interest (str): interest name (defaults to None)
     '''
     if country:
         tag = 'bycountry'
