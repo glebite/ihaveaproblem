@@ -21,6 +21,7 @@ logging.basicConfig(format="%(asctime)s %(levelname)8s %(funcName)20s:%(lineno)3
 NEXT = '»'
 BASE_URL = 'http://www.insecam.org/en'
 
+
 '''
 These are stream sources that "stream" instead of providing
 a single image.  Until there is fix for that to retrieve just
@@ -54,6 +55,7 @@ global problems
 results = list()
 problems = list()
 data_store = False
+
 
 def update_camera_url(replace, image, counter):
     '''
