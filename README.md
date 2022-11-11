@@ -82,3 +82,5 @@ List Searches:
 ## Storage:  
 Currently, the executing folder contains all of the downloaded images as 
 well as the _index.html_ file that brings it all together.
+
+
