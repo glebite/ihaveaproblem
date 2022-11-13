@@ -15,7 +15,7 @@ import getopt
 import argparse
 
 
-logging.basicConfig(format="%(asctime)s %(levelname)8s %(funcName)20s:%(lineno)3d %(message)s", filename='camfinder.log',level=logging.DEBUG)
+logging.basicConfig(format="%(asctime)s %(levelname)8s %(funcName)20s:%(lineno)3d %(message)s", filename='camfinder.log',level=logging.INFO)
 
 
 NEXT = '»'
