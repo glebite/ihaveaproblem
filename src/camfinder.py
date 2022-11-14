@@ -57,6 +57,12 @@ problems = list()
 data_store = False
 
 
+def video_capture_image(URL):
+    """
+    """
+    pass
+
+
 def update_camera_url(replace, image, counter):
     '''
     update_camera_url
