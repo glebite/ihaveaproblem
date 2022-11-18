@@ -60,7 +60,21 @@ data_store = False
 def video_capture_image(URL):
     """
     """
-    pass
+    r = requests.get(URL, stream=True)
+    if(r.status_code == 200):
+        bytes = bytes()
+        for chunk in r.iter_content(chunk_size=1024):
+            bytes += chunk
+            a = bytes.find(b'\xff\xd8')
+            b = bytes.find(b'\xff\xd9')
+            if a != -1 and b != -1:
+                jpg = bytes[a:b+2]
+                bytes = bytes[b+2:]
+                i = cv2.imdecode(np.fromstring(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
+                cv2.imwrite("capture.jpg", i)
+                break
+    else:
+        print("Received unexpected status code {}".format(r.status_code))
 
 
 def update_camera_url(replace, image, counter):
