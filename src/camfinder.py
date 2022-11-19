@@ -13,6 +13,8 @@ import sys
 import logging
 import getopt
 import argparse
+import cv2
+import numpy as np
 
 
 logging.basicConfig(format="%(asctime)s %(levelname)8s %(funcName)20s:%(lineno)3d %(message)s", filename='camfinder.log',level=logging.INFO)
@@ -62,14 +64,14 @@ def video_capture_image(URL, image_name):
     """
     result = requests.get(URL, stream=True)
     if(result.status_code == 200):
-        bytes = bytes()
+        data = bytes()
         for chunk in result.iter_content(chunk_size=1024):
-            bytes += chunk
-            a = bytes.find(b'\xff\xd8')
-            b = bytes.find(b'\xff\xd9')
+            data += chunk
+            a = data.find(b'\xff\xd8')
+            b = data.find(b'\xff\xd9')
             if a != -1 and b != -1:
-                jpg = bytes[a:b+2]
-                bytes = bytes[b+2:]
+                jpg = data[a:b+2]
+                data = data[b+2:]
                 image = cv2.imdecode(np.fromstring(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
                 cv2.imwrite(image_name, image)
                 break
