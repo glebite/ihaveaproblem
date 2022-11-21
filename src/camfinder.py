@@ -190,8 +190,9 @@ def output_html(results):
         for image in problems:
             s = image['src']
             t = image['title']
-            video_capture_image(s, 'capture.jpg')
+            video_capture_image(s, f'{t}.jpg')
             fp.write(f'<br/>Streaming: <a href="{s}" target="_blank" rel="nopener no referrer">{s}</a><br/> {t}')
+            fp.write(f'<br/><img src="./{t}.jpg" width="800" height="600"></img>')
         fp.write('</body></html')
     logging.info('Finished writing output')
 
