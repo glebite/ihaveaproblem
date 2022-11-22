@@ -1,3 +1,4 @@
+
 '''
 camfinder.py
 
@@ -60,7 +61,7 @@ data_store = False
 
 
 def video_capture_image(URL, image_name):
-    """
+    """extract a video still from a stream
     """
     result = requests.get(URL, stream=True)
     if(result.status_code == 200):
