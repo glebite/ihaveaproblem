@@ -12,13 +12,15 @@ from requests.models import Response
 import re
 import sys
 import logging
+from logging import config
 import getopt
 import argparse
 import cv2
 import numpy as np
 
 
-logging.basicConfig(format="%(asctime)s %(levelname)8s %(funcName)20s:%(lineno)3d %(message)s", filename='camfinder.log',level=logging.INFO)
+config.fileConfig("logger.conf")
+logger = logging.getLogger("root")
 
 
 NEXT = '»'
