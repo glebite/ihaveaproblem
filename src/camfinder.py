@@ -63,6 +63,13 @@ data_store = False
 
 def video_capture_image(URL, image_name):
     """extract a video still from a stream
+
+    Parameters:
+    URL        (str): the URL for the camera retrieval
+    image_name (str): the name to save/retrieve the image
+
+    Returns:
+    n/a
     """
     result = requests.get(URL, stream=True)
     if(result.status_code == 200):
