@@ -140,6 +140,11 @@ def find_multi_cam(image):
 
 def get_image(image_tuple):
     '''This is the beans and rice of the functions.
+
+    Parameters:
+    
+    Returns:
+
     '''
     global results
 
