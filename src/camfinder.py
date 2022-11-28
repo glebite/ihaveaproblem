@@ -142,8 +142,10 @@ def get_image(image_tuple):
     '''This is the beans and rice of the functions.
 
     Parameters:
-    
+    image_tuple ()
+
     Returns:
+    n/a
 
     '''
     global results
