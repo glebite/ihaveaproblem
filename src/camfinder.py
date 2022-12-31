@@ -81,7 +81,7 @@ def video_capture_image(URL, image_name):
             if a != -1 and b != -1:
                 jpg = data[a:b+2]
                 data = data[b+2:]
-                image = cv2.imdecode(np.fromstring(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
+                image = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
                 cv2.imwrite(image_name, image)
                 break
     else:
