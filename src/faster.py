@@ -15,7 +15,9 @@ from logging import config
 import getopt
 import cv2
 import numpy as np
-
+import asyncio
+from itertools import chain
+import aiohttp
 
 config.fileConfig("logger.conf")
 logger = logging.getLogger("root")
@@ -47,7 +49,7 @@ PROBLEMATIC_STREAM_SOURCES = [
 
 
 # Supply something for the server to not choke on
-headers = {'User-Agent':
+HEADERS = {'User-Agent':
            'Mozilla/5.0 (Windows NT 6.1; WOW64)'
            ' AppleWebKit/537.36 (KHTML, like Gecko)'
            ' Chrome/56.0.2924.76 Safari/537.36'}
@@ -157,8 +159,7 @@ def get_image(image_tuple):
     if data_store:
         write_out_url(image['src'])
 
-    last_img = Response()
-    last_img._content = None    
+
     for i in range(base, base+32):
         s = update_camera_url(replace, image, i)
 
@@ -166,7 +167,7 @@ def get_image(image_tuple):
         logging.info(f'Updated information {page=} {i=} {address=}')
 
         try:
-            img = requests.get(s, headers=headers, timeout=20)
+            img = requests.get(s, headers=HEADERS, timeout=20)
             logging.debug(f'Status: {img.status_code=}')
             logging.debug(f'Sorting out things: {address=}, {s=}')
             if img.content != last_img.content:
@@ -211,19 +212,73 @@ def output_html(results):
     logging.info('Finished writing output')
 
 
-def main(country=None, city=None, interest=None):
-    '''
-    Allows for searching one one of the things we want to look for
+async def find_images(tag, criteria, page_data):
+    soup = BeautifulSoup(page_data, 'html.parser')
+    images = soup.find_all("img",
+                           {"class":
+                            "thumbnail-item__img img-responsive"})
+    return images
 
-    bycountry example IR, CA, FR, TW
-    mapcity Isfahan, Toronto
-    bytag Restaurant, Bar, Gym, Office
 
-    Parameters:
-    country  (str): country code (defaults to None)
-    city     (str): city name (defaults to None)
-    interest (str): interest name (defaults to None)
-    '''
+async def process_results(results, problems):
+    """
+    Context manager that updates the global results and problems lists with
+    the results from each task.
+    """
+    try:
+        yield
+    finally:
+        for result, problem in zip(results, problems):
+            results.extend(result)
+            problems.extend(problem)
+
+async def main2(country=None, city=None, interest=None):
+    if country:
+        tag = 'bycountry'
+        criteria = country
+    elif city:
+        tag = 'bycity'
+        criteria = city
+    elif interest:
+        tag = 'bytag'
+        criteria = interest
+    else:
+        pass
+
+    logging.info(f'Starting acquisition of images: {country=}'
+                 f' {city=} {interest=}')
+
+    async with aiohttp.ClientSession() as session:
+        tasks = []
+        page = 1
+        while True:
+            if page > 1:
+                URL = f'{BASE_URL}/{tag}/{criteria}/?page={page}'
+            else:
+                URL = f'{BASE_URL}/{tag}/{criteria}'
+            logging.debug(f'{URL=}')
+
+            async with session.get(URL, headers=HEADERS) as response:
+                page_data = await response.text()
+
+            task = asyncio.create_task(find_images(tag, criteria, page_data))
+            tasks.append(task)
+            nextp = re.search(f'page={page+1}', str(page_data))
+            if nextp:
+                logging.debug(f'Next page: {page=}')
+                page += 1
+            else:
+                break
+
+        await asyncio.gather(*tasks)
+    camera_list = []
+    for item in tasks:
+        for soup_item in item.result():
+            camera_list.append(soup_item)
+    print(len(camera_list))
+
+
+async def main(country=None, city=None, interest=None):
     if country:
         tag = 'bycountry'
         criteria = country
@@ -240,42 +295,32 @@ def main(country=None, city=None, interest=None):
     global results
     global problems
     page = 1
-    executor = ThreadPoolExecutor(10)
 
-    futures = list()
+    tasks = []
     while True:
         if page > 1:
             URL = f'{BASE_URL}/{tag}/{criteria}/?page={page}'
         else:
             URL = f'{BASE_URL}/{tag}/{criteria}'
         logging.info(f'{URL=}')
-        page_data = requests.get(URL, headers=headers)
 
-        soup = BeautifulSoup(page_data.content, 'html.parser')
-
-        images = soup.find_all("img",
-                               {"class":
-                                "thumbnail-item__img img-responsive"})
-
-        logging.info(f'Checking images: {images=}')
-        for counter, image in enumerate(images):
-            print(counter, image)
-            if re.compile('|'.join(PROBLEMATIC_STREAM_SOURCES),
-                          re.IGNORECASE).search(image['src']):
-                # add the image src to list of unsupported formats
-                problems.append(image)
-                continue
-            # get_image((image, page, counter))
-            futures.append((image, page, counter))
-
+        page_data = requests.get(URL, headers=HEADERS)
+        task = asyncio.create_task(find_images(tag, criteria, page_data))
+        tasks.append(task)
         nextp = re.search(f'page={page+1}', str(page_data.content))
         if nextp:
             logging.debug(f'Next page: {page=}')
             page += 1
         else:
             break
-    for tuple in futures:
-        print(tuple)
+    await asyncio.gather(*tasks)
+
+    camera_list = []
+    breakpoint()
+    for item in tasks:
+        for soup_item in item.result():
+            camera_list.append(soup_item)
+    print(len(camera_list))
 
 
 def list_countries():
@@ -333,19 +378,6 @@ def help():
     print("-d - dump URLs to a text file")
 
 
-# def main():
-#     """
-#     """
-#     my_parser = argparse.ArgumentParser()
-#     my_parser.add_argument('-c', action='store')
-#     my_parser.add_argument('-C', action='store')
-#     my_parser.add_argument('-i', action='store')
-#     my_parser.add_argument('-l', action='store')
-#     my_parser.add_argument('-L', action='store')
-#     my_parser.add_argument('-I', action='store')
-#     my_parser.add_argument('-d', action='store')
-
-
 if __name__ == "__main__":
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hdlILc:C:i:", ["help", "output="])
@@ -357,7 +389,7 @@ if __name__ == "__main__":
         if o in ('-d'):
             data_store = True
         elif o in ("-c"):
-            main(country=a)
+            asyncio.run(main2(country=a))
             break
         elif o in ("-C"):
             main(city=a)
