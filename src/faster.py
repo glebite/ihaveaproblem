@@ -4,10 +4,7 @@ camfinder.py
 Magic tool.
 '''
 from bs4 import BeautifulSoup
-from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures import wait
 import requests
-from requests.models import Response
 import re
 import sys
 import logging
@@ -16,8 +13,8 @@ import getopt
 import cv2
 import numpy as np
 import asyncio
-from itertools import chain
 import aiohttp
+
 
 config.fileConfig("logger.conf")
 logger = logging.getLogger("root")
@@ -82,7 +79,8 @@ def video_capture_image(URL, image_name):
             if a != -1 and b != -1:
                 jpg = data[a:b+2]
                 data = data[b+2:]
-                image = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
+                image = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8),
+                                     cv2.IMREAD_COLOR)
                 cv2.imwrite(image_name, image)
                 break
     else:
@@ -159,11 +157,11 @@ def get_image(image_tuple):
     if data_store:
         write_out_url(image['src'])
 
-
     for i in range(base, base+32):
         s = update_camera_url(replace, image, i)
 
-        address = re.search(r'(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b)', image['src']).group(0)
+        address = re.search(r'(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b)',
+                            image['src']).group(0)
         logging.info(f'Updated information {page=} {i=} {address=}')
 
         try:
@@ -199,15 +197,19 @@ def output_html(results):
             logging.debug(f'Updating html page with {image_filename=}')
             fp.write(f'<br/><img src="./{image_filename}"'
                      ' width="800" height="600" ></img>')
-            fp.write(f'<br/><a href="{s}" target="_blank" rel="nopener no referrer">{s}</a><br/> {image["title"]}')
+            fp.write(f'<br/><a href="{s}" target="_blank" '
+                     f'rel="nopener no referrer">{s}</a><br/>'
+                     f' {image["title"]}')
         fp.write('<h1>Streamed image links</h1>')
-        fp.write('<br/>Clicked links will open in a new tab<br/>')        
+        fp.write('<br/>Clicked links will open in a new tab<br/>')
         for image in problems:
             s = image['src']
             t = image['title']
             video_capture_image(s, f'{t}.jpg')
-            fp.write(f'<br/><img src="./{t}.jpg" width="800" height="600"></img>')
-            fp.write(f'<br/>Streaming: <a href="{s}" target="_blank" rel="nopener no referrer">{s}</a><br/> {t}')
+            fp.write(f'<br/><img src="./{t}.jpg" '
+                     'width="800" height="600"></img>')
+            fp.write(f'<br/>Streaming: <a href="{s}" target="_blank"'
+                     f' rel="nopener no referrer">{s}</a><br/> {t}')
         fp.write('</body></html')
     logging.info('Finished writing output')
 
@@ -231,6 +233,7 @@ async def process_results(results, problems):
         for result, problem in zip(results, problems):
             results.extend(result)
             problems.extend(problem)
+
 
 async def main2(country=None, city=None, interest=None):
     if country:
@@ -327,7 +330,8 @@ def list_countries():
     """ REST API call and retrieves a json list of 
         countries, names, and count of cameras there.
     """
-    response = requests.get(f'{BASE_URL}/jsoncountries', headers=headers)
+    response = requests.get(f'{BASE_URL}/jsoncountries',
+                            headers=HEADERS)
     data = response.json()
     for country in data['countries']:
         name, count = data['countries'][country].items()
@@ -343,7 +347,7 @@ def list_cities():
         counting the number of slashes and deviating for things
         here.
     """
-    response = requests.get(f'{BASE_URL}/mapcity', headers=headers)
+    response = requests.get(f'{BASE_URL}/mapcity', headers=HEADERS)
     soup = BeautifulSoup(response.content, 'html.parser')
     links = soup.find_all("a", href=lambda href: href and "bycity" in href)
     for link in links:
@@ -357,10 +361,10 @@ def list_cities():
 
 
 def list_interests():
-    """ REST API call and retrieves a json list of 
+    """ REST API call and retrieves a json list of
         interests (tags).
     """
-    response = requests.get(f'{BASE_URL}/jsontags', headers=headers)
+    response = requests.get(f'{BASE_URL}/jsontags', headers=HEADERS)
     data = response.json()
     for tag in data['tags']:
         name = data['tags'][tag]
