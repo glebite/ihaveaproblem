@@ -14,6 +14,7 @@ import cv2
 import numpy as np
 import asyncio
 import aiohttp
+import itertools
 
 
 config.fileConfig("logger.conf")
@@ -51,6 +52,7 @@ HEADERS = {'User-Agent':
            ' AppleWebKit/537.36 (KHTML, like Gecko)'
            ' Chrome/56.0.2924.76 Safari/537.36'}
 
+SYMBOLS = itertools.cycle('-|/')
 
 global results
 global problems
@@ -301,6 +303,8 @@ async def main(country=None, city=None, interest=None):
 
     tasks = []
     while True:
+        sys.stdout.write(f'\rPlease wait... {next(SYMBOLS)}')
+        sys.stdout.flush
         if page > 1:
             URL = f'{BASE_URL}/{tag}/{criteria}/?page={page}'
         else:
