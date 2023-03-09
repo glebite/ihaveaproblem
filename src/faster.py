@@ -52,7 +52,6 @@ HEADERS = {'User-Agent':
            ' AppleWebKit/537.36 (KHTML, like Gecko)'
            ' Chrome/56.0.2924.76 Safari/537.36'}
 
-SYMBOLS = itertools.cycle('-|/')
 
 global results
 global problems
@@ -284,6 +283,7 @@ async def main2(country=None, city=None, interest=None):
 
 
 async def main(country=None, city=None, interest=None):
+    SYMBOLS = itertools.cycle('-|/')    
     if country:
         tag = 'bycountry'
         criteria = country
@@ -304,7 +304,7 @@ async def main(country=None, city=None, interest=None):
     tasks = []
     while True:
         sys.stdout.write(f'\rPlease wait... {next(SYMBOLS)}')
-        sys.stdout.flush
+        sys.stdout.flush()
         if page > 1:
             URL = f'{BASE_URL}/{tag}/{criteria}/?page={page}'
         else:
