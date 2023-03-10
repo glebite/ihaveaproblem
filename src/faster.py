@@ -187,6 +187,12 @@ def get_image(image_tuple):
 
 def output_html(results):
     '''output_html - dump the contents of "results"
+
+    Parameters:
+    results - the result data 
+
+    Returns:
+    n/a
     '''
     logging.info(f'Coming into output_html with {results=}')
     with open('index.html', 'w') as fp:
@@ -211,7 +217,7 @@ def output_html(results):
                      'width="800" height="600"></img>')
             fp.write(f'<br/>Streaming: <a href="{s}" target="_blank"'
                      f' rel="nopener no referrer">{s}</a><br/> {t}')
-        fp.write('</body></html')
+        fp.write('</body></html>')
     logging.info('Finished writing output')
 
 
