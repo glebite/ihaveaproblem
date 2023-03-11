@@ -189,7 +189,7 @@ def output_html(results):
     '''output_html - dump the contents of "results"
 
     Parameters:
-    results - the result data 
+    results - the result data coming in
 
     Returns:
     n/a
@@ -222,6 +222,16 @@ def output_html(results):
 
 
 async def find_images(tag, criteria, page_data):
+    """find_images
+
+    Parameters:
+    tag       (str):
+    criteria  (str):
+    page_data (str):
+
+    Returns:
+    images (bs4):
+    """
     soup = BeautifulSoup(page_data, 'html.parser')
     images = soup.find_all("img",
                            {"class":
@@ -233,6 +243,10 @@ async def process_results(results, problems):
     """
     Context manager that updates the global results and problems lists with
     the results from each task.
+
+    Parameters: 
+    results
+    problems
     """
     try:
         yield
@@ -243,6 +257,15 @@ async def process_results(results, problems):
 
 
 async def main2(country=None, city=None, interest=None):
+    """
+    Parameters:
+    country  (str):
+    city     (str):
+    interest (str):
+
+    Returns:
+    
+    """
     if country:
         tag = 'bycountry'
         criteria = country
@@ -289,7 +312,9 @@ async def main2(country=None, city=None, interest=None):
 
 
 async def main(country=None, city=None, interest=None):
-    SYMBOLS = itertools.cycle('-|/')    
+    """
+    """
+    SYMBOLS = itertools.cycle('-|/')
     if country:
         tag = 'bycountry'
         criteria = country
