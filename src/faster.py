@@ -93,10 +93,10 @@ def update_camera_url(replace, image, counter):
     update_camera_url
 
     Parameters:
-    replace 
+    replace
     image
     counter
-    
+
     Returns:
     source_url
     '''
@@ -164,6 +164,9 @@ def get_image(image_tuple):
         address = re.search(r'(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b)',
                             image['src']).group(0)
         logging.info(f'Updated information {page=} {i=} {address=}')
+
+        last_img = Response()
+        last_img._content = None
 
         try:
             img = requests.get(s, headers=HEADERS, timeout=20)
@@ -264,7 +267,6 @@ async def main2(country=None, city=None, interest=None):
     interest (str):
 
     Returns:
-    
     """
     if country:
         tag = 'bycountry'
@@ -311,54 +313,54 @@ async def main2(country=None, city=None, interest=None):
     print(len(camera_list))
 
 
-async def main(country=None, city=None, interest=None):
-    """
-    """
-    SYMBOLS = itertools.cycle('-|/')
-    if country:
-        tag = 'bycountry'
-        criteria = country
-    elif city:
-        tag = 'bycity'
-        criteria = city
-    elif interest:
-        tag = 'bytag'
-        criteria = interest
-    else:
-        pass
-    logging.info(f'Starting acquisition of images: {country=}'
-                 f' {city=} {interest=}')
-    global results
-    global problems
-    page = 1
+# async def main(country=None, city=None, interest=None):
+#     """
+#     """
+#     SYMBOLS = itertools.cycle('-|/')
+#     if country:
+#         tag = 'bycountry'
+#         criteria = country
+#     elif city:
+#         tag = 'bycity'
+#         criteria = city
+#     elif interest:
+#         tag = 'bytag'
+#         criteria = interest
+#     else:
+#         pass
+#     logging.info(f'Starting acquisition of images: {country=}'
+#                  f' {city=} {interest=}')
+#     global results
+#     global problems
+#     page = 1
 
-    tasks = []
-    while True:
-        sys.stdout.write(f'\rPlease wait... {next(SYMBOLS)}')
-        sys.stdout.flush()
-        if page > 1:
-            URL = f'{BASE_URL}/{tag}/{criteria}/?page={page}'
-        else:
-            URL = f'{BASE_URL}/{tag}/{criteria}'
-        logging.info(f'{URL=}')
+#     tasks = []
+#     while True:
+#         sys.stdout.write(f'\rPlease wait... {next(SYMBOLS)}')
+#         sys.stdout.flush()
+#         if page > 1:
+#             URL = f'{BASE_URL}/{tag}/{criteria}/?page={page}'
+#         else:
+#             URL = f'{BASE_URL}/{tag}/{criteria}'
+#         logging.info(f'{URL=}')
 
-        page_data = requests.get(URL, headers=HEADERS)
-        task = asyncio.create_task(find_images(tag, criteria, page_data))
-        tasks.append(task)
-        nextp = re.search(f'page={page+1}', str(page_data.content))
-        if nextp:
-            logging.debug(f'Next page: {page=}')
-            page += 1
-        else:
-            break
-    await asyncio.gather(*tasks)
+#         page_data = requests.get(URL, headers=HEADERS)
+#         task = asyncio.create_task(find_images(tag, criteria, page_data))
+#         tasks.append(task)
+#         nextp = re.search(f'page={page+1}', str(page_data.content))
+#         if nextp:
+#             logging.debug(f'Next page: {page=}')
+#             page += 1
+#         else:
+#             break
+#     await asyncio.gather(*tasks)
 
-    camera_list = []
-    breakpoint()
-    for item in tasks:
-        for soup_item in item.result():
-            camera_list.append(soup_item)
-    print(len(camera_list))
+#     camera_list = []
+#     breakpoint()
+#     for item in tasks:
+#         for soup_item in item.result():
+#             camera_list.append(soup_item)
+#     print(len(camera_list))
 
 
 def list_countries():
@@ -407,19 +409,24 @@ def list_interests():
 
 
 def help():
-    print("python camfinder.py [-I | -L | -l | -c country | -C city | -i interest]")
-    print("-c <country> - finds all cameras in the country (uses 2 character country code (except for -)")
-    print("-C <city> - all cameras by city name.  Encapsulate names that have spaces in them with quotes")
+    print("python camfinder.py [-I | -L | -l | -c country "
+          "| -C city | -i interest]")
+    print("-c <country> - finds all cameras in the country "
+          "(uses 2 character country code (except for -)")
+    print("-C <city> - all cameras by city name.  Encapsulate"
+          " names that have spaces in them with quotes")
     print("-i <interest> - lists all interests (tags) such as Restaurant.")
     print("-I - lists interests or tags such as Restaurant")
     print("-L - list of cities")
-    print("-l - list of country codes, country names, and number of cameras there.")
+    print("-l - list of country codes, country names, and "
+          "number of cameras there.")
     print("-d - dump URLs to a text file")
 
 
 if __name__ == "__main__":
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hdlILc:C:i:", ["help", "output="])
+        opts, args = getopt.getopt(sys.argv[1:], "hdlILc:C:i:",
+                                   ["help", "output="])
     except getopt.GetoptError as err:
         help()
         logging.error(err)
@@ -431,10 +438,10 @@ if __name__ == "__main__":
             asyncio.run(main2(country=a))
             break
         elif o in ("-C"):
-            main(city=a)
+            main2(city=a)
             break
         elif o in ("-i"):
-            main(interest=a)
+            main2(interest=a)
             break
         elif o in ("-l"):
             list_countries()
