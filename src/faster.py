@@ -128,11 +128,11 @@ def find_multi_cam(image):
     replace = None
     logging.debug(f"image data: {image['src']=}")
     if 'channel=' in image['src']:
-        logging.debug(f"Checking for '{channel=}'")
+        logging.debug("Checking for 'channel='")
         base = 1
         replace = "channel="
     if 'chn=' in image['src']:
-        logging.debug(f"Checking for '{chn=}'")
+        logging.debug("Checking for 'chn='")
         replace = "chn="
     logging.debug(f'leaving {base=} {replace=}')
     return base, replace
