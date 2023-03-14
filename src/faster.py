@@ -1,5 +1,5 @@
 '''
-camfinder.py
+faster.py
 
 Magic tool.
 '''
