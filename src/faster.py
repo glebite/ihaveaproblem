@@ -235,6 +235,7 @@ async def find_images(tag, criteria, page_data):
     Returns:
     images (bs4):
     """
+    logging.info(f'{tag=} {criteria=} {len(page_data)=}')
     soup = BeautifulSoup(page_data, 'html.parser')
     images = soup.find_all("img",
                            {"class":
@@ -283,6 +284,7 @@ async def main2(country=None, city=None, interest=None):
     logging.info(f'Starting acquisition of images: {country=}'
                  f' {city=} {interest=}')
 
+    counter = 1
     async with aiohttp.ClientSession() as session:
         tasks = []
         page = 1
@@ -296,7 +298,7 @@ async def main2(country=None, city=None, interest=None):
             async with session.get(URL, headers=HEADERS) as response:
                 page_data = await response.text()
 
-            task = asyncio.create_task(find_images(tag, criteria, page_data))
+            task = asyncio.create_task(get_image((None, page, counter)))
             tasks.append(task)
             nextp = re.search(f'page={page+1}', str(page_data))
             if nextp:
@@ -304,6 +306,7 @@ async def main2(country=None, city=None, interest=None):
                 page += 1
             else:
                 break
+            counter += 1
 
         await asyncio.gather(*tasks)
     camera_list = []
