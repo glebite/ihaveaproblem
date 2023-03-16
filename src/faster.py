@@ -138,7 +138,7 @@ def find_multi_cam(image):
     return base, replace
 
 
-def get_image(image_tuple):
+async def get_image(image_tuple):
     '''This is the beans and rice of the functions.
 
     Parameters:
@@ -158,12 +158,15 @@ def get_image(image_tuple):
     if data_store:
         write_out_url(image['src'])
 
-    for i in range(base, base+32):
-        s = update_camera_url(replace, image, i)
+    async with aiohttp.ClientSession(headers=HEADERS, timeout=20) as session:
+        tasks = []
+        for i in range(base, base+32):
+            s = update_camera_url(replace, image, i)
 
-        address = re.search(r'(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b)',
-                            image['src']).group(0)
-        logging.info(f'Updated information {page=} {i=} {address=}')
+            address = re.search(r'(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b)',
+                                image['src']).group(0)
+            logging.info(f'Updated information {page=} {i=} {address=}')
+            
 
         last_img = Response()
         last_img._content = None
