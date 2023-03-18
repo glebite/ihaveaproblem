@@ -14,7 +14,6 @@ import cv2
 import numpy as np
 import asyncio
 import aiohttp
-import itertools
 
 
 config.fileConfig("logger.conf")
@@ -159,14 +158,12 @@ async def get_image(image_tuple):
         write_out_url(image['src'])
 
     async with aiohttp.ClientSession(headers=HEADERS, timeout=20) as session:
-        tasks = []
         for i in range(base, base+32):
             s = update_camera_url(replace, image, i)
 
             address = re.search(r'(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b)',
                                 image['src']).group(0)
             logging.info(f'Updated information {page=} {i=} {address=}')
-            
 
         last_img = Response()
         last_img._content = None
@@ -182,13 +179,8 @@ async def get_image(image_tuple):
                     f.write(img.content)
                 logging.info(f'About to append: {file_name=} {s=} {image=}')
                 results.append((file_name, s, image))
-            else:
-                break
         except Exception as e:
             logging.error(f'Exception: {e} {i=} {s=}')
-            break
-        if not replace:
-            break
 
 
 def output_html(results):
@@ -251,7 +243,7 @@ async def process_results(results, problems):
     Context manager that updates the global results and problems lists with
     the results from each task.
 
-    Parameters: 
+    Parameters:
     results
     problems
     """
@@ -317,56 +309,6 @@ async def main2(country=None, city=None, interest=None):
         for soup_item in item.result():
             camera_list.append(soup_item)
     print(len(camera_list))
-
-
-# async def main(country=None, city=None, interest=None):
-#     """
-#     """
-#     SYMBOLS = itertools.cycle('-|/')
-#     if country:
-#         tag = 'bycountry'
-#         criteria = country
-#     elif city:
-#         tag = 'bycity'
-#         criteria = city
-#     elif interest:
-#         tag = 'bytag'
-#         criteria = interest
-#     else:
-#         pass
-#     logging.info(f'Starting acquisition of images: {country=}'
-#                  f' {city=} {interest=}')
-#     global results
-#     global problems
-#     page = 1
-
-#     tasks = []
-#     while True:
-#         sys.stdout.write(f'\rPlease wait... {next(SYMBOLS)}')
-#         sys.stdout.flush()
-#         if page > 1:
-#             URL = f'{BASE_URL}/{tag}/{criteria}/?page={page}'
-#         else:
-#             URL = f'{BASE_URL}/{tag}/{criteria}'
-#         logging.info(f'{URL=}')
-
-#         page_data = requests.get(URL, headers=HEADERS)
-#         task = asyncio.create_task(find_images(tag, criteria, page_data))
-#         tasks.append(task)
-#         nextp = re.search(f'page={page+1}', str(page_data.content))
-#         if nextp:
-#             logging.debug(f'Next page: {page=}')
-#             page += 1
-#         else:
-#             break
-#     await asyncio.gather(*tasks)
-
-#     camera_list = []
-#     breakpoint()
-#     for item in tasks:
-#         for soup_item in item.result():
-#             camera_list.append(soup_item)
-#     print(len(camera_list))
 
 
 def list_countries():
