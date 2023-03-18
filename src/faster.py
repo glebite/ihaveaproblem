@@ -5,6 +5,7 @@ Magic tool.
 '''
 from bs4 import BeautifulSoup
 import requests
+from requests.models import Response
 import re
 import sys
 import logging
@@ -149,7 +150,7 @@ async def get_image(image_tuple):
     '''
     global results
 
-    # logging.info(f'{image_tuple=}')
+    logging.debug(f'{image_tuple=}')
     image, page, counter = image_tuple
     base, replace = find_multi_cam(image)
     logging.info(f'Setting up the base and replacement: {base=} {replace=}')
@@ -219,7 +220,7 @@ def output_html(results):
     logging.info('Finished writing output')
 
 
-async def find_images(tag, criteria, page_data):
+def find_images(tag, criteria, page_data):
     """find_images
 
     Parameters:
@@ -293,7 +294,9 @@ async def main2(country=None, city=None, interest=None):
             async with session.get(URL, headers=HEADERS) as response:
                 page_data = await response.text()
 
-            task = asyncio.create_task(get_image((None, page, counter)))
+            images = find_images(tag, criteria, page_data)
+            image = images[0]
+            task = asyncio.create_task(get_image((image, page, counter)))
             tasks.append(task)
             nextp = re.search(f'page={page+1}', str(page_data))
             if nextp:
