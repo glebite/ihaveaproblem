@@ -10,6 +10,7 @@ import re
 import sys
 import logging
 from logging import config
+import traceback
 import getopt
 import cv2
 import numpy as np
@@ -139,49 +140,67 @@ def find_multi_cam(image):
 
 
 async def get_image(image_tuple):
-    '''This is the beans and rice of the functions.
-
-    Parameters:
-    image_tuple ()
-
-    Returns:
-    n/a
-
-    '''
-    global results
-
-    logging.debug(f'{image_tuple=}')
     image, page, counter = image_tuple
-    base, replace = find_multi_cam(image)
-    logging.info(f'Setting up the base and replacement: {base=} {replace=}')
 
-    if data_store:
-        write_out_url(image['src'])
+    s = update_camera_url(False, image, 0)
+    address = re.search(r'(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b)',
+                        image['src']).group(0)
+    async with aiohttp.ClientSession(headers=HEADERS) as session:
+        async with session.get(s, timeout=20) as response:
+            img = await response.content.read()
 
-    async with aiohttp.ClientSession(headers=HEADERS, timeout=20) as session:
-        for i in range(base, base+32):
-            s = update_camera_url(replace, image, i)
+            filename = f'{page}-{counter}-{address}.jpg'
+            with open(filename, 'wb') as f:
+                f.write(img)
+        return
 
-            address = re.search(r'(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b)',
-                                image['src']).group(0)
-            logging.info(f'Updated information {page=} {i=} {address=}')
+# async def get_image(image_tuple):
+#     '''This is the beans and rice of the functions.
 
-        last_img = Response()
-        last_img._content = None
+#     Parameters:
+#     image_tuple ()
 
-        try:
-            img = requests.get(s, headers=HEADERS, timeout=20)
-            logging.debug(f'Status: {img.status_code=}')
-            logging.debug(f'Sorting out things: {address=}, {s=}')
-            if img.content != last_img.content:
-                last_img._content = img.content
-                file_name = f'{page}-{base}-{i}-{address}.jpg'
-                with open(file_name, 'wb') as f:
-                    f.write(img.content)
-                logging.info(f'About to append: {file_name=} {s=} {image=}')
-                results.append((file_name, s, image))
-        except Exception as e:
-            logging.error(f'Exception: {e} {i=} {s=}')
+#     Returns:
+#     n/a
+
+#     '''
+#     global results
+
+#     logging.debug(f'{image_tuple=}')
+#     image, page, counter = image_tuple
+#     base, replace = find_multi_cam(image)
+#     logging.info(f'Setting up the base and replacement: {base=} {replace=}')
+
+#     if data_store:
+#         write_out_url(image['src'])
+#     last_img = Response()
+#     last_img._content = None
+
+#     async with aiohttp.ClientSession(headers=HEADERS) as session:
+#         for i in range(base, base+32):
+#             s = update_camera_url(replace, image, i)
+
+#             address = re.search(r'(\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b)',
+#                                 image['src']).group(0)
+#             logging.info(f'Updated information {page=} {i=} {address=}')
+
+#             try:
+#                 async with session.get(s, timeout=20) as response:
+#                     img = response.content
+#                     logging.debug(f'Status: {img.status_code=}')
+#                     logging.debug(f'Sorting out things: {address=}, {s=}')
+#                     if img.content != last_img.content:
+#                         last_img._content = img.content
+#                         file_name = f'{page}-{base}-{i}-{address}.jpg'
+#                         with open(file_name, 'wb') as f:
+#                             f.write(img.content)
+#                             logging.info(f'About to append: {file_name=}'
+#                                          f' {s=} {image=}')
+#                             results.append((file_name, s, image))
+#                     return await response.content
+#             except Exception as e:
+#                 logging.error(f'Exception: {e} {i=} {s=}')
+#                 logging.error(f'{traceback.format_exc()}')
 
 
 def output_html(results):
@@ -236,6 +255,9 @@ def find_images(tag, criteria, page_data):
     images = soup.find_all("img",
                            {"class":
                             "thumbnail-item__img img-responsive"})
+    logging.debug(f'Found {len(images)=}')
+    for image in images:
+        logging.debug(f'{image=}')
     return images
 
 
@@ -294,6 +316,7 @@ async def main2(country=None, city=None, interest=None):
             async with session.get(URL, headers=HEADERS) as response:
                 page_data = await response.text()
 
+            logging.debug(f'Processing {page=}')
             images = find_images(tag, criteria, page_data)
             image = images[0]
             task = asyncio.create_task(get_image((image, page, counter)))
@@ -307,11 +330,12 @@ async def main2(country=None, city=None, interest=None):
             counter += 1
 
         await asyncio.gather(*tasks)
-    camera_list = []
-    for item in tasks:
-        for soup_item in item.result():
-            camera_list.append(soup_item)
-    print(len(camera_list))
+    print(counter)
+    # camera_list = []
+    # for item in tasks:
+    #     for soup_item in item.result():
+    #         camera_list.append(soup_item)
+    # print(len(camera_list))
 
 
 def list_countries():
